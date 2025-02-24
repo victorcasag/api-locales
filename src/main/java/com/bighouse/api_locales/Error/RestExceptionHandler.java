@@ -3,21 +3,14 @@ package com.bighouse.api_locales.Error;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import javax.naming.AuthenticationException;
-import java.nio.file.AccessDeniedException;
 import java.util.concurrent.TimeoutException;
 
-@ControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler {
-
+@RestControllerAdvice
+public class RestExceptionHandler {
 
     // Erro de autenticação (401 Unauthorized)
     @ExceptionHandler(AuthenticationException.class)
@@ -31,20 +24,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
         ApiError apiError = new ApiError(HttpStatus.FORBIDDEN.value(), "Acesso negado.");
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
-    }
-
-    // Recurso não encontrado (404 Not Found)
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage());
-        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
-    }
-
-    // Conflito (409 Conflict)
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
-        ApiError apiError = new ApiError(HttpStatus.CONFLICT.value(), ex.getMessage());
-        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
     // Erro interno do servidor (500 Internal Server Error)
@@ -61,13 +40,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.GATEWAY_TIMEOUT);
     }
 
-    // Bad Gateway (502)
-    @ExceptionHandler(BadGatewayException.class)
-    public ResponseEntity<ApiError> handleBadGatewayException(BadGatewayException ex) {
-        ApiError apiError = new ApiError(HttpStatus.BAD_GATEWAY.value(), "Gateway inválido.");
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_GATEWAY);
-    }
-
     // Violação de integridade de dados (exemplo: duplicação de chave no banco)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
@@ -75,10 +47,28 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
-    // Falha em dependência (424 Failed Dependency)
+    // Adicione apenas se essas exceções existirem no seu código
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT.value(), ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(DependencyFailureException.class)
     public ResponseEntity<ApiError> handleDependencyFailureException(DependencyFailureException ex) {
         ApiError apiError = new ApiError(HttpStatus.FAILED_DEPENDENCY.value(), "Falha em dependência.");
         return new ResponseEntity<>(apiError, HttpStatus.FAILED_DEPENDENCY);
+    }
+
+    @ExceptionHandler(BadGatewayException.class)
+    public ResponseEntity<ApiError> handleBadGatewayException(BadGatewayException ex) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_GATEWAY.value(), "Gateway inválido.");
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_GATEWAY);
     }
 }

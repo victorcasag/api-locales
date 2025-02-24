@@ -42,12 +42,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid AuthenticationDTO data) {
+    public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
         if (userService.loadUserByUsername(data.login()) != null) return ResponseEntity.status(HttpStatus.CONFLICT).body("Login already exists.");
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.login(), encryptedPassword);
 
-        userService.InsertNewUser(newUser);
+        userService.InsertNewUser(new User(data.login(), encryptedPassword, data.role(), data.dateCreated(), data.date_updated()));
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
